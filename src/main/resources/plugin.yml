@@ -1,0 +1,7 @@
+name: PhantasyTracks
+version: '${project.version}'
+main: nl.drogaz.phantasytracks.Main
+api-version: '1.20'
+authors: [Drogaz]
+description: A Track Editor System for minecraft themeparks
+website: drogaz.nl
