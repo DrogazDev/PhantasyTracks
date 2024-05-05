@@ -5,14 +5,24 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.drogaz.phantasytracks.commands.TrackEditor;
 import nl.drogaz.phantasytracks.libraries.ConfigManager;
+import nl.drogaz.phantasytracks.libraries.ItemStackBuilder;
+import nl.drogaz.phantasytracks.libraries.TrackManager;
+import nl.drogaz.phantasytracks.listeners.TrackNodePlaceListener;
 import nl.drogaz.phantasytracks.objects.Track;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class Main extends JavaPlugin {
@@ -31,6 +41,9 @@ public final class Main extends JavaPlugin {
     @Setter
     private ConfigManager configManager;
 
+    @Getter
+    private ItemStack tracktool;
+
     @Override
     public void onEnable() {
         instance = this;
@@ -43,6 +56,31 @@ public final class Main extends JavaPlugin {
         commandManager = new PaperCommandManager(this);
         commandManager.registerCommand(new TrackEditor());
 
+        registerListeners();
+
+        List<String> lore = new ArrayList<>();
+        lore.add("§7> Click to add a node");
+        lore.add("§7> Right click to remove a node");
+        lore.add("§7> Shift + right click to select a node");
+
+        tracktool = new ItemStackBuilder(Material.BLAZE_ROD).setName("§6Track Editor")
+                .addLores(lore)
+                .addGlow()
+                .build();
+
+        ItemMeta meta = tracktool.getItemMeta();
+        meta.getPersistentDataContainer().set(new NamespacedKey(this, "phantasyland"), PersistentDataType.STRING, "trackeditor");
+        tracktool.setItemMeta(meta);
+
+        List<Track> tracks = new TrackManager().getAllTracks();
+        this.commandManager.getCommandCompletions().registerAsyncCompletion("tracks", c -> {
+            List<String> list = new ArrayList<>();
+            for (Track track : tracks) {
+                String name = track.getName();
+                list.add(name);
+            }
+            return list;
+        });
     }
 
     @Override
@@ -68,5 +106,9 @@ public final class Main extends JavaPlugin {
                 }
             }
         }
+    }
+
+    public void registerListeners() {
+        getServer().getPluginManager().registerEvents(new TrackNodePlaceListener(), this);
     }
 }

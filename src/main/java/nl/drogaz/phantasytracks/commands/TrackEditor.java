@@ -1,17 +1,17 @@
 package nl.drogaz.phantasytracks.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import nl.drogaz.phantasytracks.Main;
+import nl.drogaz.phantasytracks.libraries.ItemStackBuilder;
 import nl.drogaz.phantasytracks.libraries.TrackManager;
 import nl.drogaz.phantasytracks.objects.Track;
 import nl.drogaz.phantasytracks.objects.TrackNode;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,8 +26,9 @@ public class TrackEditor extends BaseCommand {
     public void commandSyntax(Player player) {
         player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>/track create <name>"));
         player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>/track edit <name>"));
+        player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>/track stopediting"));
         player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>/track delete <name>"));
-        player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>/track gettools"));
+        player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>/track list"));
         player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>If there are any issues, dm me on discord: <#00ff00>Drogaz"));
     }
 
@@ -58,16 +59,31 @@ public class TrackEditor extends BaseCommand {
     }
 
     @Subcommand("edit")
+    @CommandCompletion("@tracks")
     public void editTrack(Player player, String[] args) {
 
         String trackName = args[0];
+        Track track = new TrackManager().getTrackByName(trackName);
 
         if (Main.getInstance().getEnabledEditors().containsKey(player)) {
             player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>You are already editing a track!"));
             return;
         }
 
+        Main.getInstance().getEnabledEditors().put(player, track);
+        player.getInventory().setItem(0, Main.getInstance().getTracktool());
         player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>Editing track named " + args[0] + "!"));
+    }
+
+    @Subcommand("stopediting")
+    public void stopEditing(Player player) {
+        if (!Main.getInstance().getEnabledEditors().containsKey(player)) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>You are not editing any track!"));
+            return;
+        }
+
+        Main.getInstance().getEnabledEditors().remove(player);
+        player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>Stopped editing the track!"));
     }
 
     @Subcommand("gettools")

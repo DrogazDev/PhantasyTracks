@@ -15,14 +15,6 @@ public class Track {
     private String slug;
     private List<TrackNode> nodes;
 
-    public void addNode(TrackNode node) {
-        nodes.add(node);
-    }
-
-    public void removeNode(TrackNode node) {
-        nodes.remove(node);
-    }
-
     public Track getTrackByName(String name) {
         if (this.name.equals(name)) {
             return this;
