@@ -1,4 +1,4 @@
-package nl.drogaz.phantasytracks.libraries;
+package nl.drogaz.phantasytracks.managers;
 
 import com.google.gson.Gson;
 import lombok.Getter;
@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -50,13 +51,28 @@ public class TrackManager {
     }
 
     public void saveNodesToTrack(Track track) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(track.getNodes());
+
         File trackFile = new File(Main.getInstance().getDataFolder(), "tracks/" + track.getName() + ".yml");
         FileConfiguration trackConfig = YamlConfiguration.loadConfiguration(trackFile);
-        trackConfig.set("track.nodes", track.getNodes());
+        trackConfig.set("track.nodes", json);
         try {
             trackConfig.save(trackFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public List<TrackNode> getNodes(Track track) {
+        File trackFile = new File(Main.getInstance().getDataFolder(), "tracks/" + track.getName() + ".yml");
+        FileConfiguration trackConfig = YamlConfiguration.loadConfiguration(trackFile);
+        String json = trackConfig.getString("track.nodes");
+        Gson gson = new Gson();
+        TrackNode[] nodes = gson.fromJson(json, TrackNode[].class);
+        List<TrackNode> nodeList = new ArrayList<>(Arrays.asList(nodes));
+        track.setNodes(nodeList);
+        return nodeList;
     }
 }

@@ -1,10 +1,9 @@
 package nl.drogaz.phantasytracks.listeners;
 
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import nl.drogaz.phantasytracks.Main;
 import nl.drogaz.phantasytracks.libraries.PersistentTags;
-import nl.drogaz.phantasytracks.libraries.TrackManager;
+import nl.drogaz.phantasytracks.managers.TrackManager;
 import nl.drogaz.phantasytracks.objects.TrackNode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,7 +29,7 @@ public class TrackNodePlaceListener implements Listener {
         Location location = player.getLocation();
 
         try {
-            TrackNode trackNode = new TrackNode(location.x(), location.y(), location.z(), location.getYaw(), location.getPitch());
+            TrackNode trackNode = new TrackNode(location.x(), location.y(), location.z());
             trackManager.addNodeToTrack(Main.getInstance().getEnabledEditors().get(player), trackNode);
             player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>Track node placed at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()));
         } catch(Exception e) {

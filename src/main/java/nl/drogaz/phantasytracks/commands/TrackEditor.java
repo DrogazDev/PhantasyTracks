@@ -4,19 +4,14 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import nl.drogaz.phantasytracks.Main;
-import nl.drogaz.phantasytracks.libraries.ItemStackBuilder;
-import nl.drogaz.phantasytracks.libraries.TrackManager;
+import nl.drogaz.phantasytracks.managers.FunctionManager;
+import nl.drogaz.phantasytracks.managers.TrackManager;
 import nl.drogaz.phantasytracks.objects.Track;
 import nl.drogaz.phantasytracks.objects.TrackNode;
-import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 @CommandAlias("track")
 @CommandPermission("phantasytracks.track")
@@ -72,6 +67,7 @@ public class TrackEditor extends BaseCommand {
 
         Main.getInstance().getEnabledEditors().put(player, track);
         player.getInventory().setItem(0, Main.getInstance().getTracktool());
+        FunctionManager.displayTrackParticles(player, track);
         player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>Editing track named " + args[0] + "!"));
     }
 
@@ -93,9 +89,11 @@ public class TrackEditor extends BaseCommand {
 
     @Subcommand("list")
     public void listTracks(Player player) {
-        List<Track> tracks = new TrackManager().getAllTracks();
+
+        TrackManager trackManager = new TrackManager();
+        List<Track> tracks = trackManager.getAllTracks();
 
         player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>All available tracks:"));
-        tracks.forEach(track -> player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>> " + track.getName())));
+        tracks.forEach(track -> player.sendMessage(MiniMessage.miniMessage().deserialize("<#f0dc3c>> " + track.getName() + " - " + trackManager.getNodes(track).size() + " nodes")));
     }
 }

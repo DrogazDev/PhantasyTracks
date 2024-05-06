@@ -1,4 +1,4 @@
-package nl.drogaz.phantasytracks.libraries;
+package nl.drogaz.phantasytracks.managers;
 
 import lombok.Getter;
 import lombok.Setter;
